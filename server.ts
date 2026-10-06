@@ -354,6 +354,8 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 /**
  * Dev vs Production Server Setup
  */
+export default app;
+
 async function startServer() {
   if (process.env.NODE_ENV === 'production') {
     // Serve production static build
@@ -381,6 +383,8 @@ async function startServer() {
   });
 }
 
-startServer().catch(err => {
-  console.error('Failed to start server:', err);
-});
+if (!process.env.VERCEL) {
+  startServer().catch(err => {
+    console.error('Failed to start server:', err);
+  });
+}
