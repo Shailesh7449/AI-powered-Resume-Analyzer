@@ -1,0 +1,21 @@
+{
+  "source": "ESCO & O*NET Aligned Canonical Taxonomy",
+  "version": "2026.1",
+  "categories": [
+    "languages",
+    "frameworks",
+    "databases",
+    "cloud_devops",
+    "data_ml",
+    "tools",
+    "soft_skills",
+    "concepts"
+  ],
+  "sample_entities": [
+    { "id": "python", "canonical": "Python", "aliases": ["python3", "py", "python programming"] },
+    { "id": "react", "canonical": "React", "aliases": ["reactjs", "react.js", "react 18"] },
+    { "id": "aws", "canonical": "AWS", "aliases": ["amazon web services", "amazon aws"] },
+    { "id": "docker", "canonical": "Docker", "aliases": ["containerization", "docker compose"] },
+    { "id": "machine_learning", "canonical": "Machine Learning", "aliases": ["ml", "statistical learning"] }
+  ]
+}

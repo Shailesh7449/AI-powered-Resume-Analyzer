@@ -1,0 +1,23 @@
+[
+  {
+    "id": "ml_engineer_001",
+    "domain": "Machine Learning",
+    "labeled_skills": ["Python", "PyTorch", "TensorFlow", "Scikit-Learn", "Docker", "AWS", "NLP", "LLMs"],
+    "experience_years": 5,
+    "degree": "M.S. in Computer Science"
+  },
+  {
+    "id": "fullstack_002",
+    "domain": "Full Stack",
+    "labeled_skills": ["JavaScript", "TypeScript", "React", "Node.js", "PostgreSQL", "Docker", "REST APIs"],
+    "experience_years": 4,
+    "degree": "B.S. in Software Engineering"
+  },
+  {
+    "id": "devops_003",
+    "domain": "DevOps & Cloud",
+    "labeled_skills": ["Kubernetes", "Docker", "Terraform", "AWS", "CI/CD Pipelines", "Linux", "Bash"],
+    "experience_years": 4,
+    "degree": "B.S. in Information Technology"
+  }
+]

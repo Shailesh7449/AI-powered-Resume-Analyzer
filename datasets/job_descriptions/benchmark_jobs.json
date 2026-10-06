@@ -1,0 +1,16 @@
+[
+  {
+    "id": "jd_backend_001",
+    "title": "Senior Backend Engineer",
+    "required_skills": ["Node.js", "Express", "PostgreSQL", "Docker", "REST APIs", "AWS"],
+    "min_experience": 4,
+    "degree_level": "Bachelor"
+  },
+  {
+    "id": "jd_ai_research_002",
+    "title": "Machine Learning Research Scientist",
+    "required_skills": ["Python", "PyTorch", "Transformers", "NLP", "LLMs", "Deep Learning"],
+    "min_experience": 3,
+    "degree_level": "Master or PhD"
+  }
+]
