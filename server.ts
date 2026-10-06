@@ -366,7 +366,8 @@ async function startServer() {
     });
   } else {
     // Vite Dev Server middleware mode
-    const { createServer } = await import('vite');
+    const viteStr = 'vite';
+    const { createServer } = await import(viteStr);
     const vite = await createServer({
       server: {
         middlewareMode: true,
