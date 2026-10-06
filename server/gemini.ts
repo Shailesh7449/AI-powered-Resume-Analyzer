@@ -64,7 +64,7 @@ Respond in strictly valid JSON format with keys:
   "tailoringAdvice": ["...", "...", "..."]
 }`;
 
-    const response = await ai.models.generateContent({
+    const apiPromise = ai.models.generateContent({
       model: 'gemini-3.8-flash',
       contents: prompt,
       config: {
@@ -72,6 +72,12 @@ Respond in strictly valid JSON format with keys:
       },
     });
 
+    // 5-second timeout safeguard so analysis never delays
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('AI timeout')), 5000)
+    );
+
+    const response = await Promise.race([apiPromise, timeoutPromise]);
     const text = response.text;
     if (!text) return null;
 
@@ -82,7 +88,7 @@ Respond in strictly valid JSON format with keys:
       tailoringAdvice: Array.isArray(parsed.tailoringAdvice) ? parsed.tailoringAdvice : [],
     };
   } catch (err: any) {
-    console.error('Gemini enhancement warning:', err?.message || err);
+    console.warn('Gemini enhancement warning (using local NLP rewrite fallback):', err?.message || err);
     return null;
   }
 }

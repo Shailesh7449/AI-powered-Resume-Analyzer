@@ -331,11 +331,21 @@ app.post('/api/skills/gap', (req: Request, res: Response) => {
 });
 
 /**
+ * Catch-all for API endpoints to prevent falling through to HTML index
+ */
+app.all('/api/*', (req: Request, res: Response) => {
+  res.status(404).json({
+    error: `API endpoint ${req.method} ${req.originalUrl} not found`,
+  });
+});
+
+/**
  * Global Error Handler for Express
  */
 app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
   console.error('Unhandled server error:', err);
   const status = err.status || 500;
+  res.setHeader('Content-Type', 'application/json');
   res.status(status).json({
     error: err.message || 'Internal Server Error',
   });
