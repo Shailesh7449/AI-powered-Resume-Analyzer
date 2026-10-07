@@ -272,6 +272,7 @@ function AppContent() {
                     <ExtractedInfoView
                       parsedSections={analysisResult.parsedSections}
                       skills={analysisResult.skills}
+                      mlInsights={analysisResult.mlInsights}
                     />
                   </div>
                 )}

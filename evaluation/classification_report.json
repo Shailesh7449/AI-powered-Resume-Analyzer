@@ -1,0 +1,20 @@
+[
+    {
+        "model": "TF-IDF + Logistic Regression",
+        "task": "Resume Classification",
+        "accuracy": 0.6943699731903485,
+        "precision": 0.715563111354855,
+        "recall": 0.6943699731903485,
+        "f1_score": 0.6819115511162361,
+        "inference_time_seconds": 0.004045009613037109
+    },
+    {
+        "model": "TF-IDF + Linear SVM",
+        "task": "Resume Classification",
+        "accuracy": 0.7238605898123325,
+        "precision": 0.7355796493762446,
+        "recall": 0.7238605898123325,
+        "f1_score": 0.7145650858507229,
+        "inference_time_seconds": 0.0046613216400146484
+    }
+]

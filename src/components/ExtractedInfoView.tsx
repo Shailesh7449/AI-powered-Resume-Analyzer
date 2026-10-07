@@ -23,9 +23,13 @@ interface ExtractedInfoViewProps {
     categories: SkillCategoryGroup;
     totalCount: number;
   };
+  mlInsights?: {
+    predictedCategory: string;
+    extractedSkillsML: string[];
+  } | null;
 }
 
-export const ExtractedInfoView: React.FC<ExtractedInfoViewProps> = ({ parsedSections, skills }) => {
+export const ExtractedInfoView: React.FC<ExtractedInfoViewProps> = ({ parsedSections, skills, mlInsights }) => {
   const p = parsedSections.personal;
 
   const categoryTitles: { key: keyof SkillCategoryGroup; title: string; color: string }[] = [
@@ -142,6 +146,41 @@ export const ExtractedInfoView: React.FC<ExtractedInfoViewProps> = ({ parsedSect
           })}
         </div>
       </div>
+
+      {/* 2.5 Machine Learning Insights */}
+      {mlInsights && (
+        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border border-indigo-200 dark:border-indigo-800 rounded-2xl p-6 shadow-xl transition-colors duration-200">
+          <h3 className="text-sm font-bold text-indigo-900 dark:text-indigo-200 uppercase tracking-wider flex items-center gap-2 mb-4 pb-3 border-b border-indigo-200 dark:border-indigo-800/50">
+            <Layers className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+            <span>Machine Learning Insights</span>
+          </h3>
+          
+          <div className="space-y-4">
+            <div className="bg-white/60 dark:bg-slate-900/60 p-4 rounded-xl border border-indigo-100 dark:border-indigo-800/30">
+              <span className="text-[11px] font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-wider block mb-1">Predicted Job Category (TF-IDF + Linear SVM)</span>
+              <span className="font-semibold text-slate-900 dark:text-white text-lg">{mlInsights.predictedCategory}</span>
+            </div>
+            
+            {mlInsights.extractedSkillsML && mlInsights.extractedSkillsML.length > 0 && (
+              <div className="bg-white/60 dark:bg-slate-900/60 p-4 rounded-xl border border-indigo-100 dark:border-indigo-800/30">
+                <span className="text-[11px] font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-wider block mb-2">ML Skill Extraction (Random Forest)</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {mlInsights.extractedSkillsML.slice(0, 15).map((skill, i) => (
+                    <span key={i} className="text-xs px-2.5 py-1 rounded-md border font-medium text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-500/30 bg-purple-50 dark:bg-purple-500/10">
+                      {skill}
+                    </span>
+                  ))}
+                  {mlInsights.extractedSkillsML.length > 15 && (
+                    <span className="text-xs px-2.5 py-1 rounded-md font-medium text-slate-500 dark:text-slate-400">
+                      +{mlInsights.extractedSkillsML.length - 15} more
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* 3. Work Experience & Education */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

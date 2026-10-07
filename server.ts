@@ -12,6 +12,7 @@ import { recommendJobRoles } from './server/jobRecommender.js';
 import { SAMPLE_RESUMES, SAMPLE_JOB_DESCRIPTIONS } from './server/sampleData.js';
 import { runAcademicBenchmarks } from './server/academicMetrics.js';
 import { generateAiEnhancement } from './server/gemini.js';
+import { runMLTask } from './server/mlService.js';
 import {
   tokenize,
   computeReadability,
@@ -179,6 +180,17 @@ app.post('/api/resume/analyze', async (req: Request, res: Response) => {
     // 6. Job Recommendations
     const jobRecommendations = recommendJobRoles(parsedSections, matchedSkills);
 
+    // 6.5 ML Enhancements
+    const mlClassificationTask = runMLTask('classify_resume', { text: cleaned });
+    const mlSkillsTask = runMLTask('extract_skills', { phrases: tokens });
+    
+    const [mlClassification, mlSkills] = await Promise.all([mlClassificationTask, mlSkillsTask]);
+    
+    const mlInsights = {
+      predictedCategory: mlClassification?.category || 'Unknown',
+      extractedSkillsML: mlSkills?.skills || []
+    };
+
     // 7. Optional AI enhancement for bullet point rewrite suggestions & executive explanation
     let aiEnhancement = null;
     if (process.env.GEMINI_API_KEY) {
@@ -270,6 +282,7 @@ app.post('/api/resume/analyze', async (req: Request, res: Response) => {
         repeatedTerms: stuffing.topRepeated,
       },
       aiEnhancement,
+      mlInsights,
     });
   } catch (err: any) {
     console.error('Analysis error:', err);

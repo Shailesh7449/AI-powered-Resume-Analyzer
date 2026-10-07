@@ -200,6 +200,10 @@ export interface AnalysisResponse {
     }[];
     tailoringAdvice: string[];
   } | null;
+  mlInsights?: {
+    predictedCategory: string;
+    extractedSkillsML: string[];
+  } | null;
 }
 
 export interface SampleItem {
