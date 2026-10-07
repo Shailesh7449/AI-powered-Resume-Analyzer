@@ -59,28 +59,31 @@ async function safeJsonFetch<T = any>(url: string, options?: RequestInit): Promi
   const rawText = await res.text();
   const trimmed = rawText.trim();
 
-  // Guard against HTML doctype error pages (e.g. Nginx warmup or 502)
-  if (trimmed.startsWith('<!doctype') || trimmed.startsWith('<html') || trimmed.includes('<body')) {
+  // Guard against HTML doctype error pages (e.g. Vercel 504 or Nginx 502)
+  if (!res.ok && (trimmed.startsWith('<!doctype') || trimmed.startsWith('<html') || trimmed.toLowerCase().includes('<body') || trimmed.toLowerCase().includes('504 gateway timeout'))) {
     throw new Error(
-      'The analysis server is currently initializing. Please try again in 3-5 seconds.'
-    );
-  }
-
-  let data: any;
-  try {
-    data = JSON.parse(trimmed);
-  } catch {
-    throw new Error(
-      `Unable to parse server response (${res.status} ${res.statusText}). Please check your input and retry.`
+      `Server timeout or initialization error (${res.status}). The analysis took too long. Please try again.`
     );
   }
 
   if (!res.ok) {
-    const errorMsg = data.error || data.details || `Server responded with status ${res.status}`;
-    throw new Error(errorMsg);
+    let errorMessage = `Server responded with status ${res.status}`;
+    try {
+      const data = JSON.parse(trimmed);
+      errorMessage = data.error || data.details || errorMessage;
+    } catch {
+      errorMessage = trimmed ? `Server Error (${res.status}): ${trimmed.substring(0, 100)}` : errorMessage;
+    }
+    throw new Error(errorMessage);
   }
 
-  return data as T;
+  try {
+    return JSON.parse(trimmed) as T;
+  } catch {
+    throw new Error(
+      `Unable to parse server response. Please check your input and retry.`
+    );
+  }
 }
 
 export async function uploadResumeFile(file: File): Promise<{
