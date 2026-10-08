@@ -3,7 +3,7 @@ import path from 'path';
 
 export const runMLTask = async (task: string, payload: any): Promise<any> => {
   return new Promise((resolve) => {
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: NodeJS.Timeout | undefined;
     let child: any;
 
     try {

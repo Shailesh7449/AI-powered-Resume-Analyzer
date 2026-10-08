@@ -53,39 +53,6 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, onNewAn
           {/* Navigation Links */}
           <nav className="hidden md:flex items-center gap-1 text-sm font-medium">
             <button
-              onClick={() => setActiveTab('analyzer')}
-              className={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 ${
-                activeTab === 'analyzer'
-                  ? 'bg-indigo-50 dark:bg-slate-800 text-indigo-700 dark:text-white border border-indigo-200 dark:border-slate-700 shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
-              }`}
-            >
-              <FileText className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
-              Analyzer & ATS
-            </button>
-            <button
-              onClick={() => setActiveTab('jobMatch')}
-              className={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 ${
-                activeTab === 'jobMatch'
-                  ? 'bg-emerald-50 dark:bg-slate-800 text-emerald-700 dark:text-white border border-emerald-200 dark:border-slate-700 shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
-              }`}
-            >
-              <Target className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
-              Job Match
-            </button>
-            <button
-              onClick={() => setActiveTab('recommendations')}
-              className={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 ${
-                activeTab === 'recommendations'
-                  ? 'bg-amber-50 dark:bg-slate-800 text-amber-700 dark:text-white border border-amber-200 dark:border-slate-700 shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
-              }`}
-            >
-              <Award className="w-4 h-4 text-amber-500 dark:text-amber-400" />
-              Roles
-            </button>
-            <button
               onClick={() => setActiveTab('methodology')}
               className={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 ${
                 activeTab === 'methodology'
