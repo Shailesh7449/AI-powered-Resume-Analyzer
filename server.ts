@@ -12,6 +12,7 @@ import { recommendJobRoles } from './server/jobRecommender.js';
 import { SAMPLE_RESUMES, SAMPLE_JOB_DESCRIPTIONS } from './server/sampleData.js';
 import { runAcademicBenchmarks } from './server/academicMetrics.js';
 import { generateAiEnhancement } from './server/gemini.js';
+import { editSectionWithAi } from './server/aiEditor.js';
 import { runMLTask } from './server/mlService.js';
 import {
   tokenize,
@@ -311,6 +312,35 @@ app.post('/api/job/analyze', (req: Request, res: Response) => {
     });
   } catch (err: any) {
     return res.status(500).json({ error: 'Failed to parse job description', details: err?.message });
+  }
+});
+
+/**
+ * AI Editor Single Section Rewrite
+ * POST /api/ai/edit
+ */
+app.post('/api/ai/edit', async (req: Request, res: Response) => {
+  try {
+    const { text, mode, context } = req.body;
+    if (!text || typeof text !== 'string') {
+      return res.status(400).json({ error: 'Valid text is required.' });
+    }
+    
+    const validModes = ['ats', 'clarity', 'verbs', 'concise', 'grammar', 'jd_match'];
+    if (!validModes.includes(mode)) {
+      return res.status(400).json({ error: 'Invalid mode.' });
+    }
+
+    const improvedText = await editSectionWithAi(text, mode as any, context);
+    
+    return res.json({
+      success: true,
+      original: text,
+      improved: improvedText,
+    });
+  } catch (err: any) {
+    console.error('AI Edit Error:', err);
+    return res.status(500).json({ error: 'AI edit failed', details: err?.message });
   }
 });
 

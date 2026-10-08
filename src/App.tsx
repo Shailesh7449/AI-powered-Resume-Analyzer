@@ -34,6 +34,7 @@ import { BenchmarksPage } from './pages/BenchmarksPage';
 
 import { Sidebar } from './components/Sidebar';
 import { DashboardOverview } from './components/DashboardOverview';
+import { ResumeStudio } from './components/ResumeStudio';
 
 import { fetchSamples } from './services/api';
 import { exportAnalysisPdf } from './services/pdfExport';
@@ -250,14 +251,8 @@ function AppContent() {
                   )}
 
                   {activeTab === 'aiEditor' && (
-                    <div className="animate-in fade-in duration-300 space-y-6">
-                      <h2 className="text-2xl font-bold text-slate-900 dark:text-white">AI Resume Editor</h2>
-                      {analysisResult.aiEnhancement ? (
-                        <AiEnhancementsView enhancement={analysisResult.aiEnhancement} />
-                      ) : (
-                        <PlaceholderView title="No Enhancements Generated" description="Try running the analysis again to generate AI enhancements." />
-                      )}
-                      <PlaceholderView title="Manual Editor" description="Interactive resume editing features are coming soon." />
+                    <div className="animate-in fade-in duration-300">
+                      <ResumeStudio analysis={analysisResult} onUpdate={setAnalysisResult} />
                     </div>
                   )}
 

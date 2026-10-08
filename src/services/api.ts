@@ -136,6 +136,18 @@ export async function analyzeResume(
   });
 }
 
+export async function editWithAi(
+  text: string,
+  mode: 'ats' | 'clarity' | 'verbs' | 'concise' | 'grammar' | 'jd_match',
+  context?: { jobDescription?: string; sectionName?: string }
+): Promise<{ success: boolean; original: string; improved: string }> {
+  return await safeJsonFetch('/api/ai/edit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text, mode, context }),
+  });
+}
+
 export async function fetchSamples(): Promise<{
   resumes: SampleItem[];
   jobs: SampleItem[];
