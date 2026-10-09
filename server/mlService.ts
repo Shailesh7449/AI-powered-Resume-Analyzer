@@ -1,7 +1,54 @@
 import { spawn } from 'child_process';
 import path from 'path';
+import { extractAllTaxonomySkills, lookupCanonicalSkill } from './taxonomy.js';
+import { recommendJobRoles } from './jobRecommender.js';
+import { segmentResumeSections } from './parser.js';
+
+let pythonAvailable: boolean | null = null;
+
+function runNodeFallback(task: string, payload: any): any {
+  if (task === 'classify_resume') {
+    const text = typeof payload?.text === 'string' ? payload.text : '';
+    if (!text.trim()) {
+      return { category: 'Software Engineer' };
+    }
+    try {
+      const parsed = segmentResumeSections(text);
+      const { matchedSkills } = extractAllTaxonomySkills(text);
+      const recommendations = recommendJobRoles(parsed, matchedSkills);
+      if (recommendations && recommendations.length > 0) {
+        return { category: recommendations[0].roleTitle };
+      }
+    } catch {
+      // fallback to default
+    }
+    return { category: 'Software Engineer' };
+  }
+
+  if (task === 'extract_skills') {
+    const phrases: string[] = Array.isArray(payload?.phrases) ? payload.phrases : [];
+    const extractedSet = new Set<string>();
+
+    for (const phrase of phrases) {
+      if (typeof phrase === 'string' && phrase.length > 1) {
+        const canonical = lookupCanonicalSkill(phrase);
+        if (canonical) {
+          extractedSet.add(canonical.name);
+        }
+      }
+    }
+    return { skills: Array.from(extractedSet) };
+  }
+
+  return null;
+}
 
 export const runMLTask = async (task: string, payload: any): Promise<any> => {
+  // If we already detected Python/joblib is unavailable in this environment, use instant Node fallback
+  if (pythonAvailable === false) {
+    return runNodeFallback(task, payload);
+  }
+
   return new Promise((resolve) => {
     let timeoutId: NodeJS.Timeout | undefined;
     let child: any;
@@ -30,41 +77,47 @@ export const runMLTask = async (task: string, payload: any): Promise<any> => {
       child.on('close', (code: number) => {
         clearTimeout(timeoutId);
         if (code !== 0) {
-          console.warn(`ML Task failed (likely missing Python env in Vercel): ${errorOut}`);
-          return resolve(null);
+          pythonAvailable = false;
+          return resolve(runNodeFallback(task, payload));
         }
         
         try {
           const result = JSON.parse(dataOut.trim());
           if (result.error) {
-            console.warn(`ML Script Error: ${result.error}`);
-            resolve(null);
+            pythonAvailable = false;
+            resolve(runNodeFallback(task, payload));
           } else {
+            pythonAvailable = true;
             resolve(result);
           }
-        } catch (e) {
-          console.warn(`Failed to parse ML output: ${e}`);
-          resolve(null);
+        } catch {
+          pythonAvailable = false;
+          resolve(runNodeFallback(task, payload));
         }
+      });
+
+      child.on('error', () => {
+        clearTimeout(timeoutId);
+        pythonAvailable = false;
+        resolve(runNodeFallback(task, payload));
       });
       
       child.stdin.write(JSON.stringify({ task, ...payload }));
       child.stdin.end();
 
-      // Implement strict 3.5s timeout to prevent Vercel 504 Gateway Timeout
       timeoutId = setTimeout(() => {
-        console.warn(`ML Task timeout exceeded (3500ms). Gracefully failing to prevent 504 error.`);
         if (child && !child.killed) {
           child.kill('SIGKILL');
         }
-        resolve(null);
-      }, 3500);
+        pythonAvailable = false;
+        resolve(runNodeFallback(task, payload));
+      }, 3000);
       
-    } catch (e) {
-      console.warn("Error running ML Task:", e);
+    } catch {
       if (timeoutId) clearTimeout(timeoutId);
       if (child && !child.killed) child.kill('SIGKILL');
-      resolve(null); 
+      pythonAvailable = false;
+      resolve(runNodeFallback(task, payload)); 
     }
   });
 };

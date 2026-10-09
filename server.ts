@@ -98,7 +98,7 @@ app.get('/api/academic/benchmarks', (_req: Request, res: Response) => {
  * File Upload & Text Extraction
  * POST /api/resume/upload
  */
-app.post('/api/resume/upload', upload.single('resume'), async (req: Request, res: Response) => {
+app.post('/api/resume/upload', upload.single('resume') as any, async (req: Request, res: Response) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded. Please attach a PDF or DOCX file.' });
