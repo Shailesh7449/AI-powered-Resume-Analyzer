@@ -35,8 +35,15 @@ import { BenchmarksPage } from './pages/BenchmarksPage';
 import { Sidebar } from './components/Sidebar';
 import { DashboardOverview } from './components/DashboardOverview';
 import { ResumeStudio } from './components/ResumeStudio';
+import { AiCareerAssistantView } from './components/AiCareerAssistantView';
+import { RealJobSearchView } from './components/RealJobSearchView';
+import { JobMatchOptimizationView } from './components/JobMatchOptimizationView';
+import { LearningRoadmapView } from './components/LearningRoadmapView';
+import { ResumeVersionsView } from './components/ResumeVersionsView';
+import { ReportsView } from './components/ReportsView';
+import { SettingsView } from './components/SettingsView';
 
-import { fetchSamples } from './services/api';
+import { fetchSamples, analyzeResume } from './services/api';
 import { exportAnalysisPdf } from './services/pdfExport';
 import { AnalysisResponse, SampleItem } from './types';
 
@@ -57,6 +64,7 @@ function AppContent() {
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResponse | null>(null);
+  const [jobSearchQuery, setJobSearchQuery] = useState<string>('');
   const [samples, setSamples] = useState<{ resumes: SampleItem[]; jobs: SampleItem[] }>({
     resumes: [],
     jobs: [],
@@ -257,66 +265,79 @@ function AppContent() {
                   )}
 
                   {activeTab === 'aiChat' && (
-                    <div className="animate-in fade-in duration-300 space-y-6">
-                      <h2 className="text-2xl font-bold text-slate-900 dark:text-white">AI Career Assistant</h2>
-                      <PlaceholderView title="Chatbot Interface" description="Context-aware conversational assistant using the parsed resume data is coming soon." />
+                    <div className="animate-in fade-in duration-300">
+                      <AiCareerAssistantView
+                        analysis={analysisResult}
+                        onNavigateToTab={setActiveTab}
+                      />
                     </div>
                   )}
 
                   {activeTab === 'findJobs' && (
-                    <div className="animate-in fade-in duration-300 space-y-6">
-                      <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Find Jobs</h2>
-                      <JobRecommendationsView recommendations={analysisResult.jobRecommendations} />
-                      <PlaceholderView title="Real-time Job Listings" description="Integration with external job APIs is coming soon." />
+                    <div className="animate-in fade-in duration-300 space-y-8">
+                      <JobRecommendationsView
+                        recommendations={analysisResult.jobRecommendations}
+                        onSelectRoleForSearch={(role) => {
+                          setJobSearchQuery(role);
+                        }}
+                      />
+                      <RealJobSearchView
+                        initialQuery={jobSearchQuery}
+                        onMatchWithJob={async (jobText) => {
+                          try {
+                            const updated = await analyzeResume(analysisResult.parsedSections.rawText, jobText);
+                            setAnalysisResult(updated);
+                            setActiveTab('jobMatch');
+                          } catch (e) {
+                            console.error('Job match error:', e);
+                          }
+                        }}
+                      />
                     </div>
                   )}
 
                   {activeTab === 'jobMatch' && (
-                    <div className="animate-in fade-in duration-300 space-y-6">
-                      <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Job Match Analysis</h2>
-                      <JobMatchCard
-                        jobMatch={analysisResult.jobMatch}
-                        onOpenJdInput={() => {
-                          setAnalysisResult(null);
-                          window.scrollTo({ top: 0, behavior: 'smooth' });
-                        }}
+                    <div className="animate-in fade-in duration-300">
+                      <JobMatchOptimizationView
+                        analysis={analysisResult}
+                        onUpdateAnalysis={setAnalysisResult}
+                        onNavigateToStudio={() => setActiveTab('aiEditor')}
                       />
-                      {analysisResult.jobMatch && (
-                        <SkillGapCard skillGapList={analysisResult.jobMatch.skillGapList} />
-                      )}
                     </div>
                   )}
 
                   {activeTab === 'learn' && (
-                    <div className="animate-in fade-in duration-300 space-y-6">
-                      <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Learning Roadmap</h2>
-                      {analysisResult.jobMatch ? (
-                        <SkillGapCard skillGapList={analysisResult.jobMatch.skillGapList} />
-                      ) : (
-                        <p className="text-slate-600 dark:text-slate-400">Match your resume to a job description first to see skill gaps and learning resources.</p>
-                      )}
-                      <PlaceholderView title="Course Recommendations" description="Personalized Udemy/Coursera links are coming soon." />
+                    <div className="animate-in fade-in duration-300">
+                      <LearningRoadmapView
+                        analysis={analysisResult}
+                        onNavigateToTab={setActiveTab}
+                      />
                     </div>
                   )}
 
                   {activeTab === 'versions' && (
-                    <div className="animate-in fade-in duration-300 space-y-6">
-                      <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Resume Versions</h2>
-                      <PlaceholderView title="Version History" description="Compare and restore past iterations of your resume." />
+                    <div className="animate-in fade-in duration-300">
+                      <ResumeVersionsView
+                        currentAnalysis={analysisResult}
+                        onRestoreVersion={(restored) => {
+                          setAnalysisResult(restored);
+                        }}
+                      />
                     </div>
                   )}
 
                   {activeTab === 'reports' && (
-                    <div className="animate-in fade-in duration-300 space-y-6">
-                      <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Reports</h2>
-                      <PlaceholderView title="Detailed Analytics" description="Downloadable comprehensive reports on your profile performance." />
+                    <div className="animate-in fade-in duration-300">
+                      <ReportsView analysis={analysisResult} />
                     </div>
                   )}
 
                   {activeTab === 'settings' && (
-                    <div className="animate-in fade-in duration-300 space-y-6">
-                      <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Settings</h2>
-                      <PlaceholderView title="Application Preferences" description="Configure API keys, models, and personal preferences." />
+                    <div className="animate-in fade-in duration-300">
+                      <SettingsView
+                        analysis={analysisResult}
+                        onUpdateAnalysis={setAnalysisResult}
+                      />
                     </div>
                   )}
 

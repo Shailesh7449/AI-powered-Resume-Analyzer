@@ -139,6 +139,15 @@ export interface RecommendedJobRole {
   missingSkills: string[];
   growthOutlook: string;
   salaryRange: string;
+  domain?: string;
+  experienceEvidence?: string;
+  projectEvidence?: string;
+  compatibilityBreakdown?: {
+    coreSkillsPct: number;
+    optionalSkillsPct: number;
+    experienceAlignmentPct: number;
+  };
+  suggestedNextSteps?: string[];
 }
 
 export interface SectionAuditInfo {
@@ -172,6 +181,44 @@ export interface QualityAudit {
   };
   formattingFlags: FormattingFlags;
   sectionAnalysis: Record<string, SectionAuditInfo>;
+}
+
+export interface RealJobListing {
+  id: string;
+  title: string;
+  companyName: string;
+  location: string;
+  description: string;
+  remote: boolean;
+  url: string;
+  tags: string[];
+  postedDate?: string;
+  source: string;
+}
+
+export interface LearningRoadmapItem {
+  id: string;
+  skillName: string;
+  category: string;
+  priority: 'High' | 'Medium' | 'Low';
+  whyItMatters: string;
+  currentEvidence: string;
+  practicalExercise: string;
+  estimatedEffort: string;
+  resourceUrl: string;
+  resourceTitle: string;
+  status: 'planned' | 'in_progress' | 'completed';
+}
+
+export interface ResumeVersion {
+  id: string;
+  versionName: string;
+  createdAt: string;
+  notes: string;
+  resumeText: string;
+  parsedSections: ParsedSections;
+  atsScore: AtsScoreResult;
+  targetJobRole?: string;
 }
 
 export interface AnalysisResponse {
@@ -213,3 +260,4 @@ export interface SampleItem {
   summary: string;
   content: string;
 }
+

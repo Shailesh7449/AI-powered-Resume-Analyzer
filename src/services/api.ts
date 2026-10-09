@@ -167,3 +167,53 @@ export async function fetchAcademicBenchmarks(): Promise<any> {
 export async function fetchHealth(): Promise<any> {
   return await safeJsonFetch('/api/health');
 }
+
+export interface ChatMessagePayload {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export async function sendCareerAssistantMessage(
+  messages: ChatMessagePayload[],
+  context: any
+): Promise<{ success: boolean; reply: string; provider: 'gemini' | 'nlp_rule_engine' }> {
+  return await safeJsonFetch('/api/ai/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ messages, context }),
+  });
+}
+
+export async function searchRealJobs(params: {
+  role?: string;
+  location?: string;
+  remote?: boolean;
+  page?: number;
+}): Promise<{
+  success: boolean;
+  jobs: Array<{
+    id: string;
+    title: string;
+    companyName: string;
+    location: string;
+    description: string;
+    fullDescription: string;
+    remote: boolean;
+    url: string;
+    tags: string[];
+    postedDate?: string;
+    source: string;
+  }>;
+  totalCount: number;
+  apiStatus: string;
+}> {
+  const query = new URLSearchParams();
+  if (params.role) query.set('q', params.role);
+  if (params.location) query.set('location', params.location);
+  if (params.remote) query.set('remote', 'true');
+  if (params.page) query.set('page', String(params.page));
+
+  return await safeJsonFetch(`/api/jobs/search?${query.toString()}`);
+}
+
+

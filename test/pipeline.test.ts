@@ -78,4 +78,22 @@ assert(benchmarks.skillExtractionBenchmark.precision > 0, 'Expected positive ben
 assert(benchmarks.rankingBenchmark.ndcgAt5 > 0, 'Expected positive NDCG@5');
 console.log(`   ✓ Benchmarks: Precision=${benchmarks.skillExtractionBenchmark.precision}, Recall=${benchmarks.skillExtractionBenchmark.recall}, F1=${benchmarks.skillExtractionBenchmark.f1Score}, NDCG@5=${benchmarks.rankingBenchmark.ndcgAt5}.`);
 
-console.log('--- ALL 7 TEST SUITES PASSED SUCCESSFULLY ---');
+// Test 8: AI Career Assistant Grounded Chat & Rule Fallback
+console.log('8. Testing AI Career Assistant Grounded Chat...');
+import { chatWithCareerAssistant } from '../server/gemini.js';
+const chatResult = await chatWithCareerAssistant(
+  [{ role: 'user', content: 'Why is my ATS score low and what can I improve?' }],
+  {
+    candidateName: parsed.personal.name,
+    atsScore: atsResult.overallScore,
+    strengths: atsResult.strengths,
+    weaknesses: atsResult.weaknesses,
+    recommendations: atsResult.recommendations,
+    skills: extracted.matchedSkills.map(s => s.name),
+  }
+);
+assert(chatResult && typeof chatResult.reply === 'string' && chatResult.reply.length > 50, 'Expected non-empty reply');
+assert(chatResult.provider === 'gemini' || chatResult.provider === 'nlp_rule_engine', 'Expected valid provider');
+console.log(`   ✓ AI Career Assistant replied via [${chatResult.provider}]: ${chatResult.reply.slice(0, 60)}...`);
+
+console.log('--- ALL 8 TEST SUITES PASSED SUCCESSFULLY ---');
